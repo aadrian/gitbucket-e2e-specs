@@ -1,6 +1,8 @@
 gitbucket-e2e-specs
 ===================
 
+[![e2e](https://github.com/aadrian/gitbucket-e2e-specs/actions/workflows/e2e.yml/badge.svg)](https://github.com/aadrian/gitbucket-e2e-specs/actions/workflows/e2e.yml)
+
 Use cases, test cases and their browser tests (Playwright) for [GitBucket](https://github.com/gitbucket/gitbucket)
 and its four bundled plugins (`notifications`, `gist`, `emoji`, `pages`).
 
@@ -50,7 +52,8 @@ The stored sessions in `.auth/` belong to one instance; setup writes them again 
 CI
 --
 
-`.github/workflows/e2e.yml` runs the suite on every push and pull request, once in Firefox and once in Chromium, each
+`.github/workflows/e2e.yml` runs the suite on every push and pull request that changes more than Markdown files or
+the license, once in Firefox and once in Chromium, each
 against a new GitBucket (release 4.48.0 by default; another release with "Run workflow"). On failure the HTML report
 and the GitBucket log are uploaded as an artifact.
 

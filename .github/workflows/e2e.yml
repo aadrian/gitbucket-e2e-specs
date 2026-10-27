@@ -1,8 +1,11 @@
 name: e2e
 
 on:
+  # not for changes to documentation only (README, use cases, test cases, plans)
   push:
+    paths-ignore: ['**/*.md', 'LICENSE']
   pull_request:
+    paths-ignore: ['**/*.md', 'LICENSE']
   workflow_dispatch:
     inputs:
       gitbucket-version:
