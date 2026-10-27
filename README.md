@@ -8,19 +8,21 @@ and its four bundled plugins (`notifications`, `gist`, `emoji`, `pages`).
   `test-cases.md` (`<scope>:T-...`) and the specs per stage (`setup/`, `smoke/`, ...).
 - `docs/e2e-plan.md`: scope, IDs, and how use cases, test cases and tests fit together.
 
-Status: skeleton. Account types, use cases and test cases are placeholders; the only tests sign in as root and
-check that the instance answers.
+Status: started. Test accounts, setup and the first test cases (`core:T-200` to `core:T-250`: deleting and
+reverting from GitBucket's pages); the plugin folders are placeholders.
 
 Run
 ---
 
-Needs Node 20+ and a running GitBucket that may be changed (a throwaway or test instance).
+Needs Node 20+, the `gpg` command (core:T-200 makes a GPG key per run) and a running GitBucket that may be changed
+(a throwaway or test instance).
 
 ```bash
 npm install
 npx playwright install firefox           # once per Playwright version; chromium for E2E_BROWSER=chromium
 export E2E_BASE_URL=http://localhost:8080/   # default; include the context path if there is one
-npm run e2e                              # setup, then smoke
+npm run e2e                              # setup, then smoke and flows
+npx playwright test --project=flows      # the test cases (setup runs first)
 npx playwright test --grep @gist         # one scope only (@core, @gist, ...)
 npm run report                           # HTML report of the last run
 ```
@@ -32,6 +34,8 @@ npm run report                           # HTML report of the last run
 | `E2E_IGNORE_HTTPS_ERRORS` | – | `true` for self-signed or local CA certificates |
 | `E2E_BROWSER` | `firefox` | `firefox` or `chromium` |
 | `E2E_ROOT_PASSWORD` | `root` | password of `root` when it isn't the initial one |
+| `E2E_PASSWORD` | `e2e-password` | password of the test accounts setup creates |
+| `E2E_RUN` | new per run | run ID in the names of the data a run creates; set it to resume a run |
 
 Results, traces, screenshots and videos: `results/`. Stored sessions: `.auth/`. Both git-ignored.
 
@@ -45,6 +49,10 @@ lib/personas.js        test accounts: the single place for names, account types,
 lib/auth.js            sign in / out, stored session per persona
 lib/api.js             REST API (api/v3) as a persona, to check results of UI steps
 lib/plugins.js         installed plugins; skips a plugin's tests when it is missing
+lib/run.js             run ID and names of a run's data
+lib/ui.js              confirm dialogs (cancel / confirm), flash messages, error pages
+lib/keys.js            fresh SSH and GPG public keys
+lib/repo.js, webhooks.js   steps several test cases share (branches, editor, pull requests, webhooks)
 core/                  GitBucket itself: use cases, test cases, setup/, smoke/, ...
 plugins/<pluginId>/    a bundled plugin: use cases, test cases, its stage folders
 docs/e2e-plan.md       scope, IDs, structure

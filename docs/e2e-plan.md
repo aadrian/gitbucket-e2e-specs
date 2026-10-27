@@ -78,7 +78,7 @@ every scope (`core/<stage>/`, `plugins/<pluginId>/<stage>/`):
 | `setup` | started | test accounts and shared data, created once per instance |
 | `smoke` | started | the instance answers, sign-in and API work |
 | `access` | planned | each account type opens the pages it may open; the others are refused |
-| `flows` | planned | the test cases |
+| `flows` | started | the test cases (`core:T-200` to `core:T-250`) |
 | `release` | planned | the fixes and features of one release (`release/<version>.spec.js`) |
 | `cleanup` | planned | removes the data a run created |
 
@@ -89,7 +89,15 @@ Test accounts
 
 Test accounts are declared in `lib/personas.js`. They are created through GitBucket itself (registration, the
 administration pages), once per instance, and reused by later runs; setup only creates what doesn't exist yet. The
-account types follow from the use cases. So far there is only `root`.
+account types follow from the use cases (`core/use-cases.md`).
+
+| Persona | Account | Type | Created by |
+|---|---|---|---|
+| root | `root` | A | exists on every instance |
+| user | `e2e-user` | U | root, System administration → Users |
+| manager | `e2e-manager` | M | root; creates and manages the group `e2e-group` |
+| owner | `e2e-owner` | O | root; creates the repository `e2e-owner/e2e-repo` with a README |
+| developer | `e2e-developer` | D | root; the owner adds them to `e2e-repo` with the Developer role |
 
 Test data
 ---------

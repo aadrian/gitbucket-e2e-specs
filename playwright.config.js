@@ -1,6 +1,10 @@
 // GitBucket browser tests. Target and browser come from the environment, see README.md.
 import { defineConfig, devices } from '@playwright/test';
 import { target } from './lib/target.js';
+import { newRunId } from './lib/run.js';
+
+// one id per run, inherited by the workers (lib/run.js)
+process.env.E2E_RUN ||= newRunId();
 
 const browsers = { firefox: 'Desktop Firefox', chromium: 'Desktop Chrome' };
 const browser = process.env.E2E_BROWSER || 'firefox';
@@ -34,6 +38,8 @@ export default defineConfig({
     { name: 'setup', testMatch: stage('setup') },
     // the instance is up and usable
     { name: 'smoke', testMatch: stage('smoke'), dependencies: ['setup'] },
-    // planned (docs/e2e-plan.md): access, flows, release, cleanup
+    // the test cases
+    { name: 'flows', testMatch: stage('flows'), dependencies: ['setup'] },
+    // planned (docs/e2e-plan.md): access, release, cleanup
   ],
 });
