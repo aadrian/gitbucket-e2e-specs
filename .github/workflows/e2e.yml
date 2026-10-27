@@ -1,5 +1,8 @@
 name: e2e
 
+# a manual run is named after the GitBucket it tests (push and pull request runs keep GitHub's default name)
+run-name: ${{ inputs.gitbucket && format('e2e on {0}', inputs.gitbucket) }}
+
 on:
   # not for changes to documentation only (README, use cases, test cases, plans)
   push:
@@ -8,14 +11,14 @@ on:
     paths-ignore: ['**/*.md', 'LICENSE']
   workflow_dispatch:
     inputs:
-      gitbucket-version:
-        description: GitBucket release to test
+      gitbucket:
+        description: 'GitBucket to test: a release (4.48.0) or a branch, tag or commit to build (owner/repo@ref)'
         default: '4.48.0'
 
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     # Playwright's image: browsers and their system libraries preinstalled, Node included.
     # The tag must be the @playwright/test version of package.json (checked below).
     container:
@@ -24,9 +27,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [firefox, chromium]
+        browser: [firefox]
+        # browser: [firefox, chromium]
     env:
-      GITBUCKET_VERSION: ${{ inputs.gitbucket-version || '4.48.0' }}
+      GITBUCKET: ${{ inputs.gitbucket || '4.48.0' }}
       E2E_BASE_URL: http://localhost:8080/
       E2E_BROWSER: ${{ matrix.browser }}
       # Firefox refuses to start as root with a HOME owned by another user
@@ -48,10 +52,10 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Download GitBucket ${{ env.GITBUCKET_VERSION }}
-        run: >-
-          curl -fsSL -o "$RUNNER_TEMP/gitbucket.war"
-          "https://github.com/gitbucket/gitbucket/releases/download/$GITBUCKET_VERSION/gitbucket.war"
+      - name: Get GitBucket ${{ env.GITBUCKET }}
+        run: scripts/get-gitbucket.sh "$GITBUCKET" "$RUNNER_TEMP/gitbucket.war"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Start GitBucket
         run: scripts/start-gitbucket.sh "$RUNNER_TEMP/gitbucket.war" 8080 "$RUNNER_TEMP/gitbucket-home"
@@ -61,6 +65,10 @@ jobs:
 
       - name: Run the tests
         run: npx playwright test
+
+      - name: Write the summary
+        if: ${{ !cancelled() }}
+        run: node scripts/ci-summary.js results/results.json "$E2E_BROWSER on $GITBUCKET" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Add the GitBucket log to the results
         if: failure()

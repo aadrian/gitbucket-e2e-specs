@@ -18,7 +18,12 @@ const stage = (name) => [`core/${name}/**/*.spec.js`, `plugins/*/${name}/**/*.sp
 export default defineConfig({
   testDir: '.',
   outputDir: 'results/artifacts',
-  reporter: [['list'], ['html', { outputFolder: 'results/report', open: 'never' }]],
+  reporter: [
+    ['list'],
+    ['html', { outputFolder: 'results/report', open: 'never' }],
+    // for the CI summary (scripts/ci-summary.js)
+    ['json', { outputFile: 'results/results.json' }],
+  ],
   // the tests share one GitBucket instance and its data: one after the other
   workers: 1,
   fullyParallel: false,

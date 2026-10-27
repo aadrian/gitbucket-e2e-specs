@@ -44,6 +44,8 @@ Results, traces, screenshots and videos: `results/`. Stored sessions: `.auth/`. 
 A throwaway instance from a GitBucket war (Java 17+), with an empty home:
 
 ```bash
+scripts/get-gitbucket.sh 4.48.0 gitbucket.war                    # a release
+scripts/get-gitbucket.sh <owner>/gitbucket@<branch> gitbucket.war  # or a branch, tag or commit, built from source
 scripts/start-gitbucket.sh gitbucket.war 8080 /tmp/gb-e2e-home   # waits until it answers; stop: kill "$(cat /tmp/gb-e2e-home.pid)"
 ```
 
@@ -53,15 +55,27 @@ CI
 --
 
 `.github/workflows/e2e.yml` runs the suite on every push and pull request that changes more than Markdown files or
-the license, once in Firefox and once in Chromium, each
-against a new GitBucket (release 4.48.0 by default; another release with "Run workflow"). On failure the HTML report
-and the GitBucket log are uploaded as an artifact.
+the license, in Firefox (Chromium: one line in the matrix, commented out for now), against a new GitBucket 4.48.0.
+On failure the HTML report and the GitBucket log are uploaded as an artifact. The run's summary page names the
+GitBucket under test and lists the results (counts, failed tests, all tests).
+
+"Run workflow" (`workflow_dispatch`) has one input, `gitbucket`: a release (`4.48.0`) or a branch, tag or commit of
+any GitBucket repository (`owner/repo@ref`), which `scripts/get-gitbucket.sh` builds with `./sbt executable` (a few
+minutes). The run is named `e2e on <gitbucket>` and its summary names the commit, so its link can go into a GitBucket
+pull request as proof:
+
+```sh
+gh workflow run e2e.yml -R aadrian/gitbucket-e2e-specs -f gitbucket=<owner>/gitbucket@<branch>
+```
+
+The ref is resolved when the run starts; later pushes to the branch need a new run.
 
 The jobs run in Playwright's Docker image (`mcr.microsoft.com/playwright:v<version>-noble`), which has the browsers
 preinstalled. Its tag must match the `@playwright/test` version in `package.json`: when upgrading Playwright,
 change both; the workflow fails with a message when they differ.
 
-Locally with [act](https://github.com/nektos/act): `act push -j e2e --matrix browser:firefox`.
+Locally with [act](https://github.com/nektos/act): `act push`; a branch:
+`act workflow_dispatch --input gitbucket=gitbucket/gitbucket@master -s GITHUB_TOKEN="$(gh auth token)"`.
 
 Layout
 ------
@@ -77,7 +91,9 @@ lib/run.js             run ID and names of a run's data
 lib/ui.js              confirm dialogs (cancel / confirm), flash messages, error pages
 lib/keys.js            fresh SSH and GPG public keys
 lib/repo.js, webhooks.js   steps several test cases share (branches, editor, pull requests, webhooks)
+scripts/get-gitbucket.sh   the war to test: a release, or a branch built from source (local runs and CI)
 scripts/start-gitbucket.sh throwaway instance from a war (local runs and CI)
+scripts/ci-summary.js      CI: results/results.json as Markdown for the run's summary page
 .github/workflows/e2e.yml  CI: Firefox and Chromium against a new instance
 core/                  GitBucket itself: use cases, test cases, setup/, smoke/, ...
 plugins/<pluginId>/    a bundled plugin: use cases, test cases, its stage folders
