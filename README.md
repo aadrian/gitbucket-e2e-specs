@@ -39,6 +39,27 @@ npm run report                           # HTML report of the last run
 
 Results, traces, screenshots and videos: `results/`. Stored sessions: `.auth/`. Both git-ignored.
 
+A throwaway instance from a GitBucket war (Java 17+), with an empty home:
+
+```bash
+scripts/start-gitbucket.sh gitbucket.war 8080 /tmp/gb-e2e-home   # waits until it answers; stop: kill "$(cat /tmp/gb-e2e-home.pid)"
+```
+
+The stored sessions in `.auth/` belong to one instance; setup writes them again at the start of every run.
+
+CI
+--
+
+`.github/workflows/e2e.yml` runs the suite on every push and pull request, once in Firefox and once in Chromium, each
+against a new GitBucket (release 4.48.0 by default; another release with "Run workflow"). On failure the HTML report
+and the GitBucket log are uploaded as an artifact.
+
+The jobs run in Playwright's Docker image (`mcr.microsoft.com/playwright:v<version>-noble`), which has the browsers
+preinstalled. Its tag must match the `@playwright/test` version in `package.json`: when upgrading Playwright,
+change both; the workflow fails with a message when they differ.
+
+Locally with [act](https://github.com/nektos/act): `act push -j e2e --matrix browser:firefox`.
+
 Layout
 ------
 
@@ -53,6 +74,8 @@ lib/run.js             run ID and names of a run's data
 lib/ui.js              confirm dialogs (cancel / confirm), flash messages, error pages
 lib/keys.js            fresh SSH and GPG public keys
 lib/repo.js, webhooks.js   steps several test cases share (branches, editor, pull requests, webhooks)
+scripts/start-gitbucket.sh throwaway instance from a war (local runs and CI)
+.github/workflows/e2e.yml  CI: Firefox and Chromium against a new instance
 core/                  GitBucket itself: use cases, test cases, setup/, smoke/, ...
 plugins/<pluginId>/    a bundled plugin: use cases, test cases, its stage folders
 docs/e2e-plan.md       scope, IDs, structure

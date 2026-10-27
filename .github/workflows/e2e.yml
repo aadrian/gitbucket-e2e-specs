@@ -1,0 +1,74 @@
+name: e2e
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      gitbucket-version:
+        description: GitBucket release to test
+        default: '4.48.0'
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Playwright's image: browsers and their system libraries preinstalled, Node included.
+    # The tag must be the @playwright/test version of package.json (checked below).
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [firefox, chromium]
+    env:
+      GITBUCKET_VERSION: ${{ inputs.gitbucket-version || '4.48.0' }}
+      E2E_BASE_URL: http://localhost:8080/
+      E2E_BROWSER: ${{ matrix.browser }}
+      # Firefox refuses to start as root with a HOME owned by another user
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check that the image matches the Playwright version
+        run: |
+          version=$(node -p "require('./package.json').devDependencies['@playwright/test']")
+          grep -q "mcr.microsoft.com/playwright:v$version-noble" .github/workflows/e2e.yml || {
+            echo "::error::@playwright/test is $version: set the container image to mcr.microsoft.com/playwright:v$version-noble"
+            exit 1
+          }
+
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Download GitBucket ${{ env.GITBUCKET_VERSION }}
+        run: >-
+          curl -fsSL -o "$RUNNER_TEMP/gitbucket.war"
+          "https://github.com/gitbucket/gitbucket/releases/download/$GITBUCKET_VERSION/gitbucket.war"
+
+      - name: Start GitBucket
+        run: scripts/start-gitbucket.sh "$RUNNER_TEMP/gitbucket.war" 8080 "$RUNNER_TEMP/gitbucket-home"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run the tests
+        run: npx playwright test
+
+      - name: Add the GitBucket log to the results
+        if: failure()
+        run: cp "$RUNNER_TEMP/gitbucket-home.log" results/gitbucket.log || true
+
+      - name: Upload the report and the GitBucket log
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-${{ matrix.browser }}
+          path: |
+            results/report
+            results/gitbucket.log
+          retention-days: 14
