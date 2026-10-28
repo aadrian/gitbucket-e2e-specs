@@ -1,0 +1,50 @@
+// gitbucket-e2e-specs — specification first
+// Render: neato -Tpng -o specs-idea.png specs-idea.dot
+// neato with pinned positions (pos="x,y!", in points): the layout of the text sketch, drawn exactly.
+digraph specs {
+  graph [layout=neato inputscale=72 splines=line outputorder=edgesfirst pad=0.2
+         label=<<b>gitbucket-e2e-specs — specification first</b><br/> > labelloc=t fontname="Noto Sans" fontsize=14]
+  node  [shape=plaintext fontname="Noto Sans" fontsize=13 margin=0 fixedsize=true height=0.3]
+  edge  [color="#333333" arrowsize=0.7 penwidth=1.1]
+
+  // column 1: questions (left edge x=0, 250 wide)
+  q1 [pos="125,240!" width=3.47 label="What can people do in GitBucket?\l"]
+  q2 [pos="125,180!" width=3.47 label="How do we check it?\l"]
+  q3 [pos="125,120!" width=3.47 label="Run it\l"]
+  q4 [pos="125,60!"  width=3.47 label="Does it still work on this GitBucket?\l"]
+
+  // column 2: names (left edge x=270, 150 wide)
+  n1 [pos="345,240!" width=2.08 label="use cases\l" fontname="Noto Sans Bold"]
+  n2 [pos="345,180!" width=2.08 label="test cases\l" fontname="Noto Sans Bold"]
+  n3 [pos="345,120!" fixedsize=false label=<<table border="0" cellpadding="0" cellspacing="0" width="150"><tr><td align="left" balign="left"><table border="0" cellpadding="3" cellspacing="0" bgcolor="#DDEBF7" style="rounded"><tr><td><font face="Noto Sans Bold">&#8201;Playwright tests&nbsp;</font></td></tr></table></td><td width="30"></td></tr></table>>]
+  n4 [pos="345,60!"  width=2.08 label="results\l" fontname="Noto Sans Bold"]
+
+  // column 3: asides (left edge x=440, 210 wide)
+  node [fontcolor="#555555"]
+  a1 [pos="545,240!" width=2.92 label="(anyone; issues can cite them)\l"]
+  a2 [pos="545,180!" width=2.92 label="(scenarios in the users' words)\l"]
+  a3 [pos="545,120!" width=2.92 label="(on any release or branch)\l"]
+  a4 [pos="545,60!"  width=2.92 label="(per use case and test case)\l"]
+
+  // invisible anchor points for the lines
+  node [shape=point width=0 height=0 label="" style=invis]
+
+  // flow down the question column, at x=14
+  f1 [pos="14,228!"]  f2 [pos="14,192!"]
+  f3 [pos="14,168!"]  f4 [pos="14,132!"]
+  f5 [pos="14,108!"]  f6 [pos="14,72!"]
+  f1 -> f2
+  f3 -> f4
+  f5 -> f6
+
+  // loop: from the end of the results row, down, back left, up into the flow
+  l0 [pos="622,60!"] l1 [pos="640,60!"] l2 [pos="640,24!"] l3 [pos="14,24!"] l4 [pos="14,48!"]
+  l0 -> l1 -> l2 -> l3 [arrowhead=none]
+  l3 -> l4
+
+  // labels
+  node [shape=plaintext style="" fontname="Noto Sans" fontsize=12 fontcolor="#333333" height=0.25]
+  c1 [pos="70,210!" width=1.3 label="checked by\l"]
+  c2 [pos="70,150!" width=1.3 label="automated by\l"]
+  c3 [pos="327,24!" width=1.45 label="back to the spec" style=filled fillcolor=white color=white]
+}

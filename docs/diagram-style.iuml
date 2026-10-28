@@ -1,0 +1,9 @@
+' shared look of the diagrams
+' no shadows: PlantUML's are hard grey
+skinparam componentStyle rectangle
+skinparam ranksep 35
+skinparam defaultFontName "Noto Sans"
+skinparam defaultTextAlignment center
+skinparam noteTextAlignment left
+skinparam shadowing false
+' the main box of a diagram: <name> #DDEBF7, text in <b></b>

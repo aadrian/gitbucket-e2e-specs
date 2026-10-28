@@ -9,6 +9,7 @@ and its four bundled plugins (`notifications`, `gist`, `emoji`, `pages`).
 - `core/`, `plugins/<pluginId>/`: one folder per scope, each with `use-cases.md` (`<scope>:UC-...`),
   `test-cases.md` (`<scope>:T-...`) and the specs per stage (`setup/`, `smoke/`, ...).
 - `docs/e2e-plan.md`: scope, IDs, and how use cases, test cases and tests fit together.
+- `docs/development.md`: the concept and how to test a GitBucket pull request, in two diagrams.
 
 Status: started. Test accounts, setup and the first test cases (`core:T-200` to `core:T-250`: deleting and
 reverting from GitBucket's pages); the plugin folders are placeholders.
@@ -80,25 +81,35 @@ Locally with [act](https://github.com/nektos/act): `act push`; a branch:
 Layout
 ------
 
+```sh
+core/                       # GitBucket itself: use cases, test cases, specs per stage
+plugins/                    # one folder per bundled plugin, laid out like core/
+docs/                       # e2e-plan.md (scope, IDs, structure), development.md (concept)
+playwright.config.js        # projects per stage (setup → smoke → ...); browser, target
+lib/
+├── target.js               # instance under test; refuses non-local hosts by default
+├── personas.js             # test accounts: names, account types, memberships
+├── auth.js                 # sign in / out, stored session per persona
+├── api.js                  # REST API (api/v3) as a persona, to check results of UI steps
+├── plugins.js              # installed plugins; skips a plugin's tests when it is missing
+├── run.js                  # run ID and names of a run's data
+├── ui.js                   # confirm dialogs, flash messages, error pages
+├── keys.js                 # fresh SSH and GPG public keys
+└── repo.js, webhooks.js    # steps several test cases share
+scripts/
+├── get-gitbucket.sh        # the war to test: a release, or a branch built from source
+├── start-gitbucket.sh      # throwaway instance from a war
+└── ci-summary.js           # CI: results/results.json as the run's summary page
+.github/workflows/e2e.yml   # CI: Firefox (Chromium commented out) against a new instance
 ```
-playwright.config.js   projects per stage (setup → smoke → ...) over all scopes, browser, target
-lib/target.js          instance under test (env), refuses non-local hosts by default
-lib/personas.js        test accounts: the single place for names, account types, memberships
-lib/auth.js            sign in / out, stored session per persona
-lib/api.js             REST API (api/v3) as a persona, to check results of UI steps
-lib/plugins.js         installed plugins; skips a plugin's tests when it is missing
-lib/run.js             run ID and names of a run's data
-lib/ui.js              confirm dialogs (cancel / confirm), flash messages, error pages
-lib/keys.js            fresh SSH and GPG public keys
-lib/repo.js, webhooks.js   steps several test cases share (branches, editor, pull requests, webhooks)
-scripts/get-gitbucket.sh   the war to test: a release, or a branch built from source (local runs and CI)
-scripts/start-gitbucket.sh throwaway instance from a war (local runs and CI)
-scripts/ci-summary.js      CI: results/results.json as Markdown for the run's summary page
-.github/workflows/e2e.yml  CI: Firefox and Chromium against a new instance
-core/                  GitBucket itself: use cases, test cases, setup/, smoke/, ...
-plugins/<pluginId>/    a bundled plugin: use cases, test cases, its stage folders
-docs/e2e-plan.md       scope, IDs, structure
-```
+
+Concept
+-------
+
+Specification first: use cases and test cases in plain words, the Playwright tests automate them, and the results
+report back to the spec (`docs/development.md`).
+
+![specification first](docs/specs-idea.png)
 
 License
 -------

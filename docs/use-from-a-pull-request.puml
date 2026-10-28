@@ -1,0 +1,34 @@
+@startuml
+title gitbucket-e2e-specs — testing a GitBucket pull request
+
+!include diagram-style.iuml
+
+component "<owner>/gitbucket@<branch>\n(built from source)" as Branch
+component "Run workflow e2e\n(gitbucket: release or ref)" as Dispatch
+component "GitBucket release\n(e.g. 4.48.0, downloaded)" as Release
+component "get-gitbucket.sh" as Get
+component "start-gitbucket.sh\n(new, empty instance)" as Start
+component "<b>npx playwright test</b>" as Tests #DDEBF7
+component "run summary\n(GitBucket under test, results)" as Summary
+component "pull request\ndescription" as PR
+
+Branch --> Get
+Dispatch --> Get
+Release --> Get
+Get --> Start : gitbucket.war
+Start --> Tests
+Tests --> Summary
+Summary --> PR : run link
+
+note right of PR
+  one run on the branch,
+  one on the last release:
+  same tests, both links
+end note
+
+note left of Get
+  branch: resolved when the run starts,
+  a new push needs a new run
+end note
+
+@enduml
