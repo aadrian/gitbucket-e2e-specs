@@ -55,10 +55,10 @@ The stored sessions in `.auth/` belong to one instance; setup writes them again 
 CI
 --
 
-`.github/workflows/e2e.yml` runs the suite on every push and pull request that changes more than Markdown files or
-the license, in Firefox (Chromium: one line in the matrix, commented out for now), against a new GitBucket 4.48.0.
-On failure the HTML report and the GitBucket log are uploaded as an artifact. The run's summary page names the
-GitBucket under test and lists the results (counts, failed tests, all tests).
+`.github/workflows/e2e.yml` runs the suite on every push and pull request that changes more than Markdown files,
+`docs/` or the license, in Firefox (Chromium: one line in the matrix, commented out for now), against a new
+GitBucket 4.48.0. On failure the HTML report and the GitBucket log are uploaded as an artifact. The run's summary
+page names the GitBucket under test and lists the results (counts, failed tests, all tests).
 
 "Run workflow" (`workflow_dispatch`) has one input, `gitbucket`: a release (`4.48.0`) or a branch, tag or commit of
 any GitBucket repository (`owner/repo@ref`), which `scripts/get-gitbucket.sh` builds with `./sbt executable` (a few

@@ -4,11 +4,11 @@ name: e2e
 run-name: ${{ inputs.gitbucket && format('e2e on {0}', inputs.gitbucket) }}
 
 on:
-  # not for changes to documentation only (README, use cases, test cases, plans)
+  # not for changes to documentation only (README, use cases, test cases, plans, docs/ with its diagrams)
   push:
-    paths-ignore: ['**/*.md', 'LICENSE']
+    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
   pull_request:
-    paths-ignore: ['**/*.md', 'LICENSE']
+    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
   workflow_dispatch:
     inputs:
       gitbucket:
