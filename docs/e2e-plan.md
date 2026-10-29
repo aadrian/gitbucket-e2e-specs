@@ -78,7 +78,7 @@ every scope (`core/<stage>/`, `plugins/<pluginId>/<stage>/`):
 | `setup` | started | test accounts and shared data, created once per instance |
 | `smoke` | started | the instance answers, sign-in and API work |
 | `access` | planned | each account type opens the pages it may open; the others are refused |
-| `flows` | started | the test cases (`core:T-200` to `core:T-250`) |
+| `flows` | started | the test cases (`core:T-200` to `core:T-262`) |
 | `release` | planned | the fixes and features of one release (`release/<version>.spec.js`) |
 | `cleanup` | planned | removes the data a run created |
 

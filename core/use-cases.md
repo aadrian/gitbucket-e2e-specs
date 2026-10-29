@@ -31,6 +31,7 @@ so it can grow in place; test cases use the same blocks.
 | 230-239 | branches |
 | 240-249 | milestones |
 | 250-259 | wiki |
+| 260-269 | system settings: outbound requests (webhooks, clone from URL) |
 
 Account settings
 ----------------
@@ -62,6 +63,13 @@ Repository settings
     confirm dialog).
 - core:UC-O-221 Repository owner deletes a deploy key
   - Settings → Deploy keys → Delete. No confirm dialog.
+- core:UC-O-222 Repository owner tests a webhook
+  - Settings → Webhooks → Add webhook, or a webhook's edit page → Test Hook, without saving. A dialog shows the
+    request sent and the response, or an error: "invalid url" for an address that is blocked, "timed out" when the
+    receiver doesn't answer within the webhook timeout.
+- core:UC-O-223 Repository owner adds and changes webhooks through the REST API
+  - `api/v3/repos/<owner>/<repo>/hooks`. Event names GitBucket doesn't know are refused (422); names it knows but
+    doesn't send (e.g. `release`) are stored, with a warning in the server log.
 
 Branches
 --------
@@ -88,3 +96,14 @@ Wiki
   - Page → history → compare two revisions → Revert Changes. No confirm dialog.
 - core:UC-D-252 Wiki editor reverts changes across the wiki
   - Wiki history → compare two revisions → Revert Changes. No confirm dialog.
+
+System settings: outbound requests
+----------------------------------
+
+- core:UC-A-260 Administrator sets where webhooks and clone from URL may connect
+  - System administration → System settings → Integrations → Outbound requests: "Block sending to private
+    addresses" (on by default after 4.48.0) and the IP whitelist, editable only while blocking is on. The server
+    log names the administrator for each change.
+- core:UC-A-261 Administrator sets the webhook timeout
+  - Same place, "Webhook timeout" in seconds (default 10), for connecting and for each wait for the response. A value
+    that is not a number is refused.

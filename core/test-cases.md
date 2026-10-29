@@ -125,5 +125,46 @@ Personas: a developer collaborator (D)
 Spec: core/flows/wiki.spec.js
 Status: implemented
 
+Outbound requests (core:T-260 to core:T-262)
+--------------------------------------------
+
+Where webhooks may connect, how long GitBucket waits for them, and webhook event names in the API. These test cases
+need the outbound request changes of gitbucket/gitbucket#4170 and #4171 (after 4.48.0) and skip themselves on older
+versions. They change the instance's outbound request settings and restore them at the end. A webhook receiver in
+the test process on 127.0.0.1 stands for a server on a private network.
+
+### core:T-260 An administrator limits where webhooks may connect
+With blocking on and an empty IP whitelist, the repository owner presses Test Hook for a webhook to the local
+receiver: the Request tab shows "ERROR invalid url", and nothing arrives. The administrator adds `127.0.0.0/8` to
+the whitelist; the same test shows response status 200, and the receiver got one push event.
+
+Use cases: core:UC-A-260, core:UC-O-222
+Requires: core
+Personas: administrator (A), a repository owner (O)
+Spec: core/flows/outbound-requests.spec.js
+Status: implemented
+
+### core:T-261 An administrator sets the webhook timeout
+The administrator enters `abc` as webhook timeout and applies: "Webhook timeout must be a number.", and the stored
+value is unchanged. They set 2 seconds, with `127.0.0.0/8` in the whitelist. The owner tests a webhook to a
+receiver that accepts the request and never answers: the Response tab shows "ERROR timed out" in less than 10
+seconds, and the request did arrive.
+
+Use cases: core:UC-A-261, core:UC-O-222
+Requires: core
+Personas: administrator (A), a repository owner (O)
+Spec: core/flows/outbound-requests.spec.js
+Status: implemented
+
+### core:T-262 The API refuses unknown webhook event names
+The owner creates a webhook through the API with the events `push` and `*`: the answer is 422 with the message
+"Unknown webhook events: *", and the API doesn't list the webhook.
+
+Use cases: core:UC-O-223
+Requires: core
+Personas: a repository owner (O)
+Spec: core/flows/outbound-requests.spec.js
+Status: implemented
+
 Not covered here: sign-out (stays a link), and the gist plugin's own delete, which belongs to the plugin's test
 cases.

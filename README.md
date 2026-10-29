@@ -12,7 +12,8 @@ and its four bundled plugins (`notifications`, `gist`, `emoji`, `pages`).
 - `docs/development.md`: the concept and how to test a GitBucket pull request, in two diagrams.
 
 Status: started. Test accounts, setup and the first test cases (`core:T-200` to `core:T-250`: deleting and
-reverting from GitBucket's pages); the plugin folders are placeholders.
+reverting from GitBucket's pages; `core:T-260` to `core:T-262`: outbound requests); the plugin folders are
+placeholders.
 
 Run
 ---
@@ -95,6 +96,8 @@ lib/
 ├── run.js                  # run ID and names of a run's data
 ├── ui.js                   # confirm dialogs, flash messages, error pages
 ├── keys.js                 # fresh SSH and GPG public keys
+├── outbound.js             # outbound request settings; skips on versions without them
+├── receiver.js             # webhook receiver in the test process (answers, or never answers)
 └── repo.js, webhooks.js    # steps several test cases share
 scripts/
 ├── get-gitbucket.sh        # the war to test: a release, or a branch built from source
