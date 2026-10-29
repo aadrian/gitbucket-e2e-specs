@@ -6,6 +6,45 @@ blocks of `use-cases.md`; ID scheme and format in `../docs/e2e-plan.md`.
 
 The smoke tests (instance up, sign-in, API) are not test cases.
 
+Sign-in sessions (core:T-100 to core:T-102)
+-------------------------------------------
+
+A new session at sign-in, and changes of an account that apply to its open sessions. These test cases need the
+session changes of the pull request for gitbucket/gitbucket#4170 and #4171 (after 4.48.0) and skip themselves on
+older versions. The accounts they change are created by them, with the run ID in the name, and disabled at the end.
+
+### core:T-100 Sign-in starts a new session
+A browser without a session opens the sign-in page and gets a session cookie. The user signs in: the browser now
+has another session ID, the cookie is HttpOnly, and the sign-in response sets it with SameSite=Lax. A second browser
+with the session cookie from before sign-in is not signed in.
+
+Use cases: core:UC-U-100
+Requires: core
+Personas: a user (U)
+Spec: core/flows/sessions.spec.js
+Status: implemented
+
+### core:T-101 An administrator disables a signed-in user
+The administrator creates an account, and its user signs in in another browser. The administrator disables the
+account: the user's next page shows them signed out, and creating a repository asks them to sign in.
+
+Use cases: core:UC-A-101
+Requires: core
+Personas: administrator (A), an account created by the test
+Spec: core/flows/sessions.spec.js
+Status: implemented
+
+### core:T-102 An administrator takes away a signed-in user's administrator rights
+The administrator creates an account of type Administrator; its user signs in in another browser, has "System
+administration" in the user menu and opens the user list. The administrator changes the account type to Normal: the
+user's next request for the user list is refused, they are still signed in, and the menu entry is gone.
+
+Use cases: core:UC-A-102
+Requires: core
+Personas: administrator (A), an account created by the test
+Spec: core/flows/sessions.spec.js
+Status: implemented
+
 Deleting from a page (core:T-200 to core:T-250)
 -----------------------------------------------
 

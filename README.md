@@ -11,9 +11,9 @@ and its four bundled plugins (`notifications`, `gist`, `emoji`, `pages`).
 - `docs/e2e-plan.md`: scope, IDs, and how use cases, test cases and tests fit together.
 - `docs/development.md`: the concept and how to test a GitBucket pull request, in two diagrams.
 
-Status: started. Test accounts, setup and the first test cases (`core:T-200` to `core:T-250`: deleting and
-reverting from GitBucket's pages; `core:T-260` to `core:T-262`: outbound requests); the plugin folders are
-placeholders.
+Status: started. Test accounts, setup and the first test cases (`core:T-100` to `core:T-102`: sign-in sessions;
+`core:T-200` to `core:T-250`: deleting and reverting from GitBucket's pages; `core:T-260` to `core:T-262`: outbound
+requests); the plugin folders are placeholders.
 
 Run
 ---

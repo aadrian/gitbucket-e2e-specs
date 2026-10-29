@@ -25,6 +25,7 @@ so it can grow in place; test cases use the same blocks.
 
 | Block | Area |
 |---|---|
+| 100-109 | sign-in and sessions |
 | 200-209 | account settings: credentials and account webhooks |
 | 210-219 | groups |
 | 220-229 | repository settings |
@@ -32,6 +33,19 @@ so it can grow in place; test cases use the same blocks.
 | 240-249 | milestones |
 | 250-259 | wiki |
 | 260-269 | system settings: outbound requests (webhooks, clone from URL) |
+
+Sign-in and sessions
+--------------------
+
+- core:UC-U-100 User signs in
+  - Sign in page, user name and password. GitBucket starts a new session at sign-in; the session cookie is
+    HttpOnly and SameSite=Lax (after 4.48.0).
+- core:UC-A-101 Administrator disables a user
+  - System administration → Users → Edit → Disable → Update user. The user's open sessions end at their next page
+    (after 4.48.0).
+- core:UC-A-102 Administrator changes a user's account type
+  - Same page, User Type: Normal or Administrator. Applies to the user's open sessions at their next page (after
+    4.48.0).
 
 Account settings
 ----------------
