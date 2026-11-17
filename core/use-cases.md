@@ -33,6 +33,8 @@ so it can grow in place; test cases use the same blocks.
 | 240-249 | milestones |
 | 250-259 | wiki |
 | 260-269 | system settings: outbound requests (webhooks, clone from URL) |
+| 270-279 | issues: labels, comments and attachments |
+| 280-289 | repository files |
 
 Sign-in and sessions
 --------------------
@@ -121,3 +123,19 @@ System settings: outbound requests
 - core:UC-A-261 Administrator sets the webhook timeout
   - Same place, "Webhook timeout" in seconds (default 10), for connecting and for each wait for the response. A value
     that is not a number is refused.
+
+Issues
+------
+
+- core:UC-D-270 Developer creates a label
+  - Issues → Labels → New label: name and color, Create label. The label is added without reloading the page.
+- core:UC-D-271 Developer attaches a file to a comment
+  - Issue page, comment box: "Attach images or documents by dragging & dropping, or selecting them." The file is
+    uploaded at once and a link to it is added to the comment text; Comment posts it.
+
+Repository files
+----------------
+
+- core:UC-D-280 Developer uploads files to a repository
+  - Code → Upload files (cloud icon): drag files to the page or select them, then commit them to the branch shown
+    or to a new branch.

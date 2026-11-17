@@ -207,3 +207,40 @@ Status: implemented
 
 Not covered here: sign-out (stays a link), and the gist plugin's own delete, which belongs to the plugin's test
 cases.
+
+Labels, attachments and uploads (core:T-270 to core:T-280)
+-----------------------------------------------------------
+
+Actions that send data from the page without loading a new one (labels) or that upload files. They run in Firefox
+and Chromium. Data has the run ID in its name and is kept.
+
+### core:T-270 A developer creates a label
+The developer opens the label list of the repository, clicks New label, enters a name and clicks Create label: the
+label appears in the list without a page reload, and the API lists it.
+
+Use cases: core:UC-D-270
+Requires: core
+Personas: a developer collaborator (D)
+Spec: core/flows/issues.spec.js
+Status: implemented
+
+### core:T-271 A developer attaches a file to a comment
+The developer opens an issue, selects a text file through the attach area under the comment box: a link to the
+file appears in the comment text. After Comment, the comment shows the link, and the link returns the file's
+content.
+
+Use cases: core:UC-D-271
+Requires: core
+Personas: a developer collaborator (D)
+Spec: core/flows/issues.spec.js
+Status: implemented
+
+### core:T-280 A developer uploads a file to the repository
+The developer opens the repository's files, clicks Upload files, selects a text file, enters a commit message and
+clicks Commit changes: the file is listed in the repository, and the API returns it with its content.
+
+Use cases: core:UC-D-280
+Requires: core
+Personas: a developer collaborator (D)
+Spec: core/flows/repository-upload.spec.js
+Status: implemented
