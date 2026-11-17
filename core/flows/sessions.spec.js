@@ -3,10 +3,17 @@
 // themselves on older versions (recognised like the outbound request test cases). The accounts they change are
 // created by the test cases and disabled at the end.
 
+// core:T-103 and core:T-104 Forms and their session: GitBucket accepts a form only with the token of the session that
+// showed it (CSRF check). They skip themselves on versions without the check.
+
 import { test, expect } from '@playwright/test';
+import { apiGetOk } from '../../lib/api.js';
 import { pageAs, signIn } from '../../lib/auth.js';
+import { requireCsrfCheck } from '../../lib/csrf.js';
 import { requireOutboundRequestChanges } from '../../lib/outbound.js';
-import { personas } from '../../lib/personas.js';
+import { personas, repoPath } from '../../lib/personas.js';
+import { named } from '../../lib/run.js';
+import { target } from '../../lib/target.js';
 import { createUser, editUser } from '../../lib/users.js';
 
 const signedIn = (page) => page.locator('a[href$="/signout"]');
@@ -104,6 +111,75 @@ test.describe('core:T-100 to core:T-102 sign-in sessions', { tag: '@core' }, () 
       await expect(administrationMenu(page)).not.toBeAttached();
     } finally {
       await page.context().close();
+    }
+  });
+});
+
+test.describe('core:T-103 and core:T-104 forms and their session', { tag: '@core' }, () => {
+  requireCsrfCheck();
+
+  const { developer } = personas;
+  const repo = repoPath();
+  const reloadHint = 'Reload the page and try again';
+  // the newest open issues of the shared repository
+  const issueTitles = async () => (await apiGetOk(developer, `repos/${repo}/issues`)).map((i) => i.title);
+
+  test('core:T-103 a form sent after its session ended asks to reload the page', async ({ browser }) => {
+    const context = await browser.newContext();
+    try {
+      const page = await context.newPage();
+      await signIn(page, developer);
+      const title = named('stale-form');
+      await page.goto(`${repo}/issues/new`);
+      await page.locator('#issue-title').fill(title);
+
+      const other = await context.newPage();
+      await other.goto('signout');
+      await other.close();
+
+      await page.getByRole('button', { name: 'Submit new issue' }).click();
+      await expect(page.getByText(reloadHint)).toBeVisible();
+      expect(await issueTitles(), 'no issue created').not.toContain(title);
+
+      await signIn(page, developer);
+      await page.goto(`${repo}/issues/new`);
+      await page.locator('#issue-title').fill(title);
+      await page.getByRole('button', { name: 'Submit new issue' }).click();
+      await expect(page).toHaveURL(/\/issues\/\d+$/);
+      expect(await issueTitles()).toContain(title);
+    } finally {
+      await context.close();
+    }
+  });
+
+  test('core:T-104 a page of another site can\'t send a form in the user\'s name', async ({ browser }) => {
+    const context = await browser.newContext();
+    try {
+      const page = await context.newPage();
+      await signIn(page, developer);
+      const title = named('cross-site-form');
+
+      // the other application: same host, the next port; served by the test, not by a server (low ports like 1 are
+      // blocked by Firefox even for a served page)
+      const base = new URL(target.baseURL);
+      const port = Number(base.port || (base.protocol === 'https:' ? 443 : 80)) + 1;
+      const otherSite = `${base.protocol}//${base.hostname}:${port}/`;
+      const action = new URL(`${repo}/issues/new`, target.baseURL).href;
+      await context.route(otherSite, (route) => route.fulfill({
+        contentType: 'text/html',
+        body: `<form method="post" action="${action}"><input type="hidden" name="title" value="${title}">
+               <button>Show the offer</button></form>`,
+      }));
+
+      await page.goto(otherSite);
+      const post = page.waitForResponse((r) => r.url() === action && r.request().method() === 'POST');
+      await page.getByRole('button', { name: 'Show the offer' }).click();
+      const response = await post;
+      expect(await response.request().headerValue('cookie'), 'the browser sends the session cookie').toContain('JSESSIONID');
+      expect(response.status()).toBe(403);
+      expect(await issueTitles(), 'no issue created').not.toContain(title);
+    } finally {
+      await context.close();
     }
   });
 });

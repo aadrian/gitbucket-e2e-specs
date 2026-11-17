@@ -45,6 +45,36 @@ Personas: administrator (A), an account created by the test
 Spec: core/flows/sessions.spec.js
 Status: implemented
 
+Forms and their session (core:T-103 to core:T-104)
+--------------------------------------------------
+
+GitBucket accepts a form only together with the token of the session that showed it (CSRF check). These test cases
+need the check (after 4.48.0) and skip themselves on older versions, recognised by the `csrf-token` meta tag. They
+sign in in browsers of their own, so the stored sessions of the personas stay valid.
+
+### core:T-103 A form sent after its session ended asks to reload the page
+The developer signs in and opens New issue with a title. In another tab the developer signs out. Back in the first
+tab, Submit new issue: the page says "Reload the page and try again", and the issue is not created. The developer
+signs in again and sends the form once more: the issue is created.
+
+Use cases: core:UC-U-103
+Requires: core
+Personas: a developer collaborator (D)
+Spec: core/flows/sessions.spec.js
+Status: implemented
+
+### core:T-104 A page of another site can't send a form in the user's name
+The developer, signed in, opens a page of another application on the same host (another port) and clicks its
+button, which sends a New issue form to the shared repository. GitBucket refuses it (403), and the issue is not
+created. The
+browser sends the session cookie with this request (same site, SameSite=Lax), so only the CSRF check stops it.
+
+Use cases: core:UC-U-104
+Requires: core
+Personas: a developer collaborator (D)
+Spec: core/flows/sessions.spec.js
+Status: implemented
+
 Deleting from a page (core:T-200 to core:T-250)
 -----------------------------------------------
 

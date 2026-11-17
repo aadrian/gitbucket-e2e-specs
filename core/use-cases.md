@@ -48,6 +48,13 @@ Sign-in and sessions
 - core:UC-A-102 Administrator changes a user's account type
   - Same page, User Type: Normal or Administrator. Applies to the user's open sessions at their next page (after
     4.48.0).
+- core:UC-U-103 User sends a form after their session ended
+  - Any form, e.g. New issue, opened while signed in; the session ends (sign-out in another tab, expiry, server
+    restart) before the user sends it. GitBucket refuses it with "Reload the page and try again" and changes nothing
+    (CSRF check, after 4.48.0; before, the request went through as anonymous).
+- core:UC-U-104 A page of another site sends a form to GitBucket in the user's name
+  - The user, signed in to GitBucket, opens a page of another web application on the same host (another port). The
+    page sends a form to GitBucket. GitBucket refuses it and changes nothing (CSRF check, after 4.48.0).
 
 Account settings
 ----------------
